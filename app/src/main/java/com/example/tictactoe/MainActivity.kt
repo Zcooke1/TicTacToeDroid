@@ -56,6 +56,13 @@ class MainActivity : ComponentActivity() {
             button.text = if (playerXTurn) "X" else "O"
             playerXTurn = !playerXTurn
             updatePlayerTurnTextView()
+
+            if (checkForWin()){
+                endGame()
+
+            }else if(isBoardFull()){
+                drawGame()
+            }
         }
     }
 
@@ -63,6 +70,7 @@ class MainActivity : ComponentActivity() {
         playerXTurn = true
         buttons.forEach { button ->
             button.text = ""
+            button.isEnabled = true
         }
         updatePlayerTurnTextView()
     }
@@ -70,6 +78,63 @@ class MainActivity : ComponentActivity() {
     private fun updatePlayerTurnTextView() {
         val playerTurnTextView = findViewById<TextView>(R.id.player_text)
         playerTurnTextView.text = if (playerXTurn) "Player X's Turn" else "Player O's Turn"
+    }
+
+    private fun checkForWin(): Boolean {
+        val board = Array(3) { arrayOfNulls<String?>(3) }
+        for (i in 0..2) {
+            for (j in 0..2) {
+                board[i][j] = buttons[(i * 3) + j].text?.toString()
+            }
+        }
+
+        // Check rows
+        for (i in 0..2) {
+            if (board[i][0] == board[i][1] && board[i][0] == board[i][2] && !board[i][0].isNullOrBlank()) {
+                return true
+            }
+        }
+
+        // Check columns
+        for (i in 0..2) {
+            if (board[0][i] == board[1][i] && board[0][i] == board[2][i] && !board[0][i].isNullOrBlank()) {
+                return true
+            }
+        }
+
+        // Check diagonals
+        if (board[0][0] == board[1][1] && board[0][0] == board[2][2] && !board[0][0].isNullOrBlank()) {
+            return true
+        }
+        if (board[0][2] == board[1][1] && board[0][2] == board[2][0] && !board[0][2].isNullOrBlank()) {
+            return true
+        }
+
+        return false
+    }
+
+    private fun isBoardFull(): Boolean {
+        return buttons.all { button ->
+            button.text.isNotBlank()
+        }
+    }
+
+    private fun endGame() {
+        val playerTurnTextView = findViewById<TextView>(R.id.player_text)
+        playerTurnTextView.text = if (playerXTurn) "Player O Wins!" else "Player X Wins!"
+        disableButtons()
+    }
+
+    private fun drawGame() {
+        val playerTurnTextView = findViewById<TextView>(R.id.player_text)
+        playerTurnTextView.text = "It's a Draw!"
+        disableButtons()
+    }
+
+    private fun disableButtons() {
+        buttons.forEach { button ->
+            button.isEnabled = false
+        }
     }
 }
 
